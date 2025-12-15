@@ -1,7 +1,7 @@
 name: Frontend CI/CD
 
 env:
-  DOCKER_REGISTRY: your-registry-url/yellow-book-frontend
+  DOCKER_REGISTRY: 290817091060.dkr.ecr.eu-north-1.amazonaws.com/uploadit-frontend
 
 on:
   push:

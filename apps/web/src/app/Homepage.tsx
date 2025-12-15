@@ -46,7 +46,7 @@ const Homepage: React.FC<HomepageProps> = ({
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
               Орон Нутгийн Бизнес
-              <span className="block text-yellow-600">Эрнэ Хайх</span>
+              <span className="block text-yellow-600">Эрэн Хайх</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
               Танай орчны шилдэг бизнесүүдийг олоорой. Зоогийн газраас эхлээд үйлчилгээ хүртэл, 
