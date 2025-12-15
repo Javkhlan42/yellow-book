@@ -46,7 +46,7 @@ export default function BusinessDetails() {
         <div className={styles.container}>
           <div className={styles.notFound}>
             <h1>Business Not Found</h1>
-            <p>The business you're looking for doesn't exist.</p>
+            <p>The business you&apos;re looking for doesn&apos;t exist.</p>
             <Link href="/" className={styles.backButton}>
               Back to Home
             </Link>

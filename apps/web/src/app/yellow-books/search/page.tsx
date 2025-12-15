@@ -48,7 +48,7 @@ async function SearchResults({
         </div>
         {query && (
           <span className="text-sm text-gray-600">
-            Хайлт: <span className="font-medium">"{query}"</span>
+            Хайлт: <span className="font-medium">&quot;{query}&quot;</span>
           </span>
         )}
       </div>
@@ -209,7 +209,7 @@ export default async function SearchPage({
           </h3>
           <p className="text-sm text-purple-700">
             Энэ хуудас бүр хүсэлт бүрт server дээр render хийгдэнэ. Газрын зураг 
-            client-side "island" болж hydrate хийгдэж, бусад контент server-side rendered. 
+            client-side &quot;island&quot; болж hydrate хийгдэж, бусад контент server-side rendered. 
             Өгөгдөл үргэлж шинэлэг байна!
           </p>
         </div>
