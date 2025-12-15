@@ -1,4 +1,4 @@
-# Dockerfile.backend - NestJS app at apps/api using Nx
+# Dockerfile.backend - Express API at apps/api using Nx
 
 # ---------- Base image ----------
 FROM node:20-alpine AS base
