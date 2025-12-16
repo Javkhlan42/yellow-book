@@ -1,0 +1,19 @@
+# aws-auth ConfigMap for RBAC (10 pts)
+# This allows GitHubActionsYellowbooksRole to deploy to the cluster
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::290817091060:role/eksNodeRole
+      username: system:node:{{EC2PrivateDNSName}}
+      groups:
+        - system:bootstrappers
+        - system:nodes
+    - rolearn: arn:aws:iam::290817091060:role/GitHubActionsYellowbooksRole
+      username: github-actions
+      groups:
+        - system:masters

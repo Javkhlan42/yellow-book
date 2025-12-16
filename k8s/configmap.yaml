@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yellowbooks-config
+  namespace: yellowbooks
+data:
+  # Backend configuration
+  NODE_ENV: "production"
+  PORT: "4000"
+  
+  # Frontend configuration
+  NEXT_PUBLIC_API_URL: "http://backend-service:4000/api"
+  
+  # Database configuration (change to your RDS endpoint)
+  DATABASE_HOST: "your-rds-endpoint.region.rds.amazonaws.com"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "yellowbooks"

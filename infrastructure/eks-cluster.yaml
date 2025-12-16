@@ -1,0 +1,48 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: yellowbooks
+  region: eu-north-1
+  version: "1.28"
+
+# IAM OIDC Provider (GitHub Actions-д шаардлагатай)
+iam:
+  withOIDC: true
+
+# VPC тохиргоо
+vpc:
+  cidr: 10.0.0.0/16
+  nat:
+    gateway: Single
+
+# Node groups
+managedNodeGroups:
+  - name: yellowbooks-workers
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    volumeSize: 20
+    ssh:
+      allow: false
+    labels:
+      role: worker
+      environment: production
+    tags:
+      nodegroup-name: yellowbooks-workers
+      Project: yellowbooks
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        albIngress: true
+        ebs: true
+        efs: true
+
+# CloudWatch Logging
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"]

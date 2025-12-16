@@ -1,0 +1,27 @@
+# Database Migration Job (10 pts)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prisma-migrate
+  namespace: yellowbooks
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: migration
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: prisma-migrate
+        image: 290817091060.dkr.ecr.us-east-1.amazonaws.com/uploadit-backend:latest
+        command: ["/bin/sh"]
+        args:
+          - "-c"
+          - "npx prisma migrate deploy && npx prisma db seed"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: yellowbooks-secrets
+              key: DATABASE_URL
