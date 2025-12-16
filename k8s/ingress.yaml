@@ -12,11 +12,12 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - yellowbooks.98-92-139-199.nip.io
+    - yellowbooks.54-86-232-109.nip.io
     - yellowbooks.107-21-187-21.nip.io
+    - yellowbooks.54-89-248-88.nip.io
     secretName: yellowbooks-tls
   rules:
-  - host: yellowbooks.98-92-139-199.nip.io
+  - host: yellowbooks.54-86-232-109.nip.io
     http:
       paths:
       - path: /api
@@ -34,6 +35,23 @@ spec:
             port:
               number: 80
   - host: yellowbooks.107-21-187-21.nip.io
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 4000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+  - host: yellowbooks.54-89-248-88.nip.io
     http:
       paths:
       - path: /api

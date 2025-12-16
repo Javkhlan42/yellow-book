@@ -22,12 +22,20 @@
 
 ## 🌐 Live Application
 
-**HTTPS URL**: https://yellowbooks.98-92-139-199.nip.io:31529  
-**HTTP URL**: http://98.92.139.199:31003  
+**HTTPS URLs** (any of these):
+- https://yellowbooks.54-86-232-109.nip.io:31529
+- https://yellowbooks.107-21-187-21.nip.io:31529
+- https://yellowbooks.54-89-248-88.nip.io:31529
+
+**HTTP URLs**:
+- http://54.86.232.109:31003
+- http://107.21.187.21:31003
+- http://54.89.248.88:31003
 
 **Database**: PostgreSQL (in-cluster)  
 **Status**: ✅ All 5 pods Running  
-**GitHub Actions**: ✅ OIDC workflows updated
+**GitHub Actions**: ✅ OIDC workflows updated  
+**Security Group**: ✅ NodePort range (30000-32767) opened
 
 ---
 
