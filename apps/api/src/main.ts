@@ -26,15 +26,17 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Routes
 app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to Yellow Book API!' });
+  console.log('✅ API health check endpoint called');
+  res.send({ message: 'Welcome to Yellow Book API!', status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 // Get all categories
 app.get('/api/categories', (req, res) => {
   try {
+    console.log('📋 Categories endpoint called, returning', categoriesData.length, 'categories');
     res.json(categoriesData);
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('❌ Error fetching categories:', error);
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
