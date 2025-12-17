@@ -1,5 +1,4 @@
-﻿
-
+﻿// Lab 6 EKS Deployment - Access Entry Updated
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
