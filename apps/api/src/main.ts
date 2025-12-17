@@ -1,4 +1,4 @@
-﻿// Lab 6 EKS Deployment - sharnom.systems domain configured
+﻿// Lab 6 EKS Deployment - Fixed deployment strategy
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
