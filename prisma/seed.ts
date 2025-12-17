@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Clear existing data
   await prisma.yellowBook.deleteMany();
+  await prisma.user.deleteMany();
 
   // Create seed data
   const yellowBookEntries = [
@@ -90,6 +91,18 @@ async function main() {
   }
 
   console.log(`✅ Seeded ${yellowBookEntries.length} yellow book entries`);
+
+  // Create admin user
+  const adminUser = await prisma.user.create({
+    data: {
+      email: 'javkhlan42@gmail.com',
+      name: 'Admin User',
+      role: 'admin',
+      emailVerified: new Date(),
+    },
+  });
+
+  console.log(`✅ Created admin user: ${adminUser.email}`);
 }
 
 main()

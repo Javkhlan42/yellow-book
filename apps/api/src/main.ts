@@ -1,12 +1,16 @@
-﻿// Lab 6 EKS Deployment - Fixed deployment strategy
+﻿// Lab 6 & 7 - EKS Deployment with NextAuth and Role-based Access Control
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { YellowBookEntrySchema } from '@yellow-book/contract';
 import * as fs from 'fs';
 import { Organization } from './types/organization';
+import { validateSession } from './middleware/session.middleware';
+import { setCsrfToken, csrfProtection } from './middleware/csrf.middleware';
+import { requireAdmin } from './middleware/auth.middleware';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -20,8 +24,14 @@ const categoriesData: string[] = JSON.parse(
 );
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(validateSession);
+app.use(setCsrfToken);
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Routes
@@ -119,7 +129,29 @@ app.get('/api/yellow-books', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch yellow book entries' });
   }
 }); 
-// ..
+
+// Admin routes (protected)
+app.get('/api/admin/dashboard', requireAdmin, (req, res) => {
+  res.json({
+    message: 'Welcome to admin dashboard',
+    user: (req as any).user,
+  });
+});
+
+app.post('/api/admin/organizations', csrfProtection, requireAdmin, async (req, res) => {
+  try {
+    // Create organization logic here
+    res.json({ message: 'Organization created', data: req.body });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create organization' });
+  }
+});
+
+// CSRF token endpoint
+app.get('/api/csrf-token', (req, res) => {
+  const token = req.cookies['csrf-token'];
+  res.json({ csrfToken: token });
+});
 
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {
