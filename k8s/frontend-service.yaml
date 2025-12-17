@@ -6,11 +6,12 @@ metadata:
   labels:
     app: frontend
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: frontend
   ports:
   - port: 80
     targetPort: 3000
+    nodePort: 31003
     protocol: TCP
     name: http
