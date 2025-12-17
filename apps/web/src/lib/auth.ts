@@ -13,11 +13,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientSecret: process.env.GITHUB_SECRET!,
     }),
   ],
+  session: {
+    strategy: 'database', // Use database sessions with adapter
+  },
   callbacks: {
     async session({ session, user }) {
-      // Add role to session
-      if (session.user) {
-        session.user.role = user.role || 'user';
+      // Add role to session from database user
+      if (session.user && user) {
+        session.user.role = (user as any).role || 'user';
         session.user.id = user.id;
       }
       return session;
