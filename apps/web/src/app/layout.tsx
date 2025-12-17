@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './global.css';
 
 export const metadata: Metadata = {
-  title: 'Yellow Book - Find Local Businesses',
+  title: 'Yellow Book - Business Directory',
   description: 'Discover the best local businesses in your area - sharnom.systems',
 };
 
