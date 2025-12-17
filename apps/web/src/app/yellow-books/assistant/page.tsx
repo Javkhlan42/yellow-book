@@ -39,7 +39,9 @@ export default function AssistantPage() {
     setResponse(null);
 
     try {
-      const res = await fetch('/api/ai/yellow-books/search', {
+      // Use backend API URL directly for production
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${apiUrl}/api/ai/yellow-books/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
