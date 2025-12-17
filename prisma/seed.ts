@@ -92,9 +92,13 @@ async function main() {
 
   console.log(`✅ Seeded ${yellowBookEntries.length} yellow book entries`);
 
-  // Create admin user
-  const adminUser = await prisma.user.create({
-    data: {
+  // Create or update admin user
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'javkhlangantulga17@gmail.com' },
+    update: {
+      role: 'admin',
+    },
+    create: {
       email: 'javkhlangantulga17@gmail.com',
       name: 'Admin User',
       role: 'admin',
@@ -102,7 +106,7 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created admin user: ${adminUser.email}`);
+  console.log(`✅ Created/Updated admin user: ${adminUser.email}`);
 }
 
 main()
