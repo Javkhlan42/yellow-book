@@ -1,4 +1,4 @@
-import { requireAdmin } from '@/lib/auth-guards';
+import { requireAdmin } from '../../lib/auth-guards';
 
 export default async function AdminPage() {
   const session = await requireAdmin();
