@@ -1,4 +1,4 @@
-﻿// Lab 6 EKS Deployment - Access Entry Updated
+﻿// Lab 6 EKS Deployment - sharnom.systems domain configured
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
