@@ -11,8 +11,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
+      authorization: {
+        params: {
+          scope: 'read:user user:email',
+        },
+      },
     }),
   ],
+  basePath: '/api/auth',
   session: {
     strategy: 'database', // Use database sessions with adapter
   },
@@ -31,6 +37,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     error: '/auth/error',
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: true,
   trustHost: true, // Trust the host in production
 });
