@@ -1,8 +1,8 @@
-export const signIn = jest.fn();
-export const signOut = jest.fn();
-export const useSession = jest.fn(() => ({
+export const signIn = () => Promise.resolve();
+export const signOut = () => Promise.resolve();
+export const useSession = () => ({
   data: null,
-  status: 'unauthenticated',
-}));
+  status: 'unauthenticated' as const,
+});
 
-export const SessionProvider = ({ children }: { children: React.ReactNode }) => children;
+export const SessionProvider = ({ children }: { children: any }) => children;
