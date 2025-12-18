@@ -21,7 +21,7 @@ const prisma = new PrismaClient();
 
 // Load JSON data
 const organizationsData: Organization[] = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'data', 'organizations.json'), 'utf-0')
+  fs.readFileSync(path.join(__dirname, 'data', 'organizations.json'), 'utf-8')
 );
 const categoriesData: string[] = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'data', 'categories.json'), 'utf-8')
