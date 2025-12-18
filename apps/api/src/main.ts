@@ -26,7 +26,11 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Routes
 app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to Yellow Book API!' });
+  res.send({ 
+    message: 'Welcome to Yellow Book API!',
+    version: '1.0.0',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Get all categories
