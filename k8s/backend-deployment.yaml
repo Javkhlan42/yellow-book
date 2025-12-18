@@ -22,6 +22,12 @@ spec:
         app: backend
         tier: api
     spec:
+      tolerations:
+      - key: "CriticalAddonsOnly"
+        operator: "Exists"
+      - key: "karpenter.sh/disrupted"
+        operator: "Exists"
+        effect: "NoSchedule"
       containers:
       - name: backend
         image: 290817091060.dkr.ecr.us-east-1.amazonaws.com/uploadit-backend:latest
@@ -45,16 +51,11 @@ spec:
             secretKeyRef:
               name: yellowbooks-secrets
               key: DATABASE_URL
-        - name: FRONTEND_URL
+        - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:
               name: yellowbooks-secrets
-              key: FRONTEND_URL
-        - name: CSRF_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: yellowbooks-secrets
-              key: NEXTAUTH_SECRET
+              key: OPENAI_API_KEY
         resources:
           requests:
             memory: "256Mi"

@@ -14,6 +14,13 @@ const config: Config = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/apps/web',
   testEnvironment: 'jsdom',
+  transformIgnorePatterns: [
+    'node_modules/(?!(next-auth|@next-auth|@auth)/)',
+  ],
+  moduleNameMapper: {
+    '^next-auth/react$': '<rootDir>/__mocks__/next-auth-react.ts',
+    '^next-auth$': '<rootDir>/__mocks__/next-auth-react.ts',
+  },
 };
 
 export default createJestConfig(config);

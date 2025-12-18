@@ -87,14 +87,14 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            NEXT_PUBLIC_API_URL=/api
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Deploy to EKS
         run: |
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
-          kubectl set image deployment/frontend frontend=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest -n yellowbooks
-          kubectl delete pods -l app=frontend -n yellowbooks
-          kubectl rollout status deployment/frontend -n yellowbooks --timeout=10m
+          kubectl rollout restart deployment/frontend -n yellowbooks
+          kubectl rollout status deployment/frontend -n yellowbooks --timeout=5m
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,4 +1,5 @@
-﻿// Lab 6 & 7 - EKS Deployment with NextAuth and Role-based Access Control
+﻿// Lab 6 EKS Deployment - Fixed deployment strategy
+// Lab 7 GitHub OAuth - Added auth middleware and CSRF protection
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
@@ -8,17 +9,19 @@ import { PrismaClient } from '@prisma/client';
 import { YellowBookEntrySchema } from '@yellow-book/contract';
 import * as fs from 'fs';
 import { Organization } from './types/organization';
-import { validateSession } from './middleware/session.middleware';
-import { setCsrfToken, csrfProtection } from './middleware/csrf.middleware';
-import { requireAdmin } from './middleware/auth.middleware';
-import { searchWithAI } from './middleware/ai-search.middleware';
+import {
+  authenticateToken,
+  requireAdmin,
+  AuthRequest,
+} from './middleware/auth.middleware';
+import { csrfProtection } from './middleware/csrf.middleware';
 
 const app = express();
 const prisma = new PrismaClient();
 
 // Load JSON data
 const organizationsData: Organization[] = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'data', 'organizations.json'), 'utf-8')
+  fs.readFileSync(path.join(__dirname, 'data', 'organizations.json'), 'utf-0')
 );
 const categoriesData: string[] = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'data', 'categories.json'), 'utf-8')
@@ -26,28 +29,25 @@ const categoriesData: string[] = JSON.parse(
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'http://localhost:4200',
   credentials: true,
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(validateSession);
-app.use(setCsrfToken);
+app.use(csrfProtection); // Apply CSRF protection globally
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Routes
 app.get('/api', (req, res) => {
-  console.log('✅ API health check endpoint called');
-  res.send({ message: 'Welcome to Yellow Book API!', status: 'healthy', timestamp: new Date().toISOString() });
+  res.send({ message: 'Welcome to Yellow Book API!' });
 });
 
 // Get all categories
 app.get('/api/categories', (req, res) => {
   try {
-    console.log('📋 Categories endpoint called, returning', categoriesData.length, 'categories');
     res.json(categoriesData);
   } catch (error) {
-    console.error('❌ Error fetching categories:', error);
+    console.error('Error fetching categories:', error);
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
@@ -129,33 +129,54 @@ app.get('/api/yellow-books', async (req, res) => {
     console.error('Error fetching yellow book entries:', error);
     res.status(500).json({ error: 'Failed to fetch yellow book entries' });
   }
-}); 
-
-// Admin routes (protected)
-app.get('/api/admin/dashboard', requireAdmin, (req, res) => {
-  res.json({
-    message: 'Welcome to admin dashboard',
-    user: (req as any).user,
-  });
 });
 
-app.post('/api/admin/organizations', csrfProtection, requireAdmin, async (req, res) => {
+// Admin Routes - Protected with authentication and role check
+app.get('/api/admin/users', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    // Create organization logic here
-    res.json({ message: 'Organization created', data: req.body });
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+    res.json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create organization' });
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
 
-// CSRF token endpoint
-app.get('/api/csrf-token', (req, res) => {
-  const token = req.cookies['csrf-token'];
-  res.json({ csrfToken: token });
+app.get('/api/admin/stats', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const [userCount, yellowBookCount] = await Promise.all([
+      prisma.user.count(),
+      prisma.yellowBook.count(),
+    ]);
+    res.json({
+      users: userCount,
+      yellowBooks: yellowBookCount,
+      admin: req.user?.email,
+    });
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
 });
 
-// AI-powered search endpoint
-app.post('/api/ai/yellow-books/search', searchWithAI);
+// Health check endpoint (no auth required)
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy',
+    message: 'Welcome to Yellow Book API!',
+    timestamp: new Date().toISOString(),
+  });
+});
+// ..
 
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {

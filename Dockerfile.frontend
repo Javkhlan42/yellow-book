@@ -1,4 +1,4 @@
-# Dockerfile.frontend - Next.js frontend app at apps/web using Nx
+# Dockerfile.frontend - Next.js app at apps/web using Nx
 
 # ---------- Base image ----------
 FROM node:20-alpine AS base
@@ -28,10 +28,6 @@ COPY nx.json tsconfig.base.json tsconfig.json ./
 COPY eslint.config.mjs jest.config.ts jest.preset.js ./
 COPY apps/web ./apps/web
 COPY libs ./libs
-COPY prisma ./prisma
-
-# Generate Prisma client before building
-RUN npx prisma generate
 
 # Build libs first and create symlinks
 ENV NX_DAEMON=false

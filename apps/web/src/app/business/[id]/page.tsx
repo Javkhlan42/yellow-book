@@ -15,8 +15,7 @@ export default function BusinessDetails() {
   useEffect(() => {
     const fetchBusiness = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api/yellow-books';
-        const response = await fetch(apiUrl);
+        const response = await fetch('http://localhost:3333/api/yellow-books');
         if (!response.ok) {
           throw new Error('Failed to fetch businesses');
         }
