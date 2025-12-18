@@ -31,6 +31,12 @@ const Header = () => {
               Лавлах
             </Link>
             <Link 
+              href="/admin" 
+              className="text-gray-700 hover:text-yellow-600 px-3 py-2 text-sm font-medium transition-colors"
+            >
+              Admin
+            </Link>
+            <Link 
               href="/yellow-books/assistant" 
               className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             >
