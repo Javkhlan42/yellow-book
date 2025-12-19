@@ -11,7 +11,7 @@ import {
   updateJobStatus,
   moveJobToDLQ,
 } from '../services/queue.service';
-import { sendEmail, generateSignInEmail } from '../services/email.service';
+import { sendEmail, generateSignInEmail, generateCustomEmail } from '../services/email.service';
 
 /**
  * Process sign-in notification job
@@ -29,15 +29,24 @@ async function processSignInNotification(
     // Update status to processing
     await updateJobStatus(data.jobId, 'processing');
 
+    // Check if this is a custom email job
+    const isCustomEmail = data.provider === 'custom' && (data as any).customSubject && (data as any).customBody;
+
     // Generate email content
-    const emailPayload = generateSignInEmail({
-      name: data.name,
-      email: data.email,
-      ipAddress: data.ipAddress,
-      userAgent: data.userAgent,
-      timestamp: data.timestamp,
-      provider: data.provider,
-    });
+    const emailPayload = isCustomEmail
+      ? generateCustomEmail({
+          to: data.email,
+          subject: (data as any).customSubject,
+          body: (data as any).customBody,
+        })
+      : generateSignInEmail({
+          name: data.name,
+          email: data.email,
+          ipAddress: data.ipAddress,
+          userAgent: data.userAgent,
+          timestamp: data.timestamp,
+          provider: data.provider,
+        });
 
     // Send email (currently log-only)
     await sendEmail(emailPayload);

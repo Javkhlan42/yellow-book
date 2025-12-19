@@ -34,6 +34,8 @@ export interface SignInNotificationPayload {
   userAgent: string;
   timestamp: string;
   attemptCount: number;
+  customSubject?: string;
+  customBody?: string;
 }
 
 // Queue Configuration
@@ -99,7 +101,7 @@ export async function enqueueSignInNotification(
  */
 async function isJobProcessed(jobId: string): Promise<boolean> {
   try {
-    const job = await prisma.jobLog.findUnique({
+    const job = await (prisma as any).jobLog.findUnique({
       where: { jobId },
     });
 
@@ -117,7 +119,7 @@ async function countRecentJobs(userId: string, timeWindowMs: number): Promise<nu
   try {
     const since = new Date(Date.now() - timeWindowMs);
     
-    const count = await prisma.jobLog.count({
+    const count = await (prisma as any).jobLog.count({
       where: {
         userId,
         jobType: JobType.SIGNIN_NOTIFICATION,
@@ -139,7 +141,7 @@ async function countRecentJobs(userId: string, timeWindowMs: number): Promise<nu
  */
 async function logJobEnqueued(payload: SignInNotificationPayload): Promise<void> {
   try {
-    await prisma.jobLog.create({
+    await (prisma as any).jobLog.create({
       data: {
         jobId: payload.jobId,
         jobType: JobType.SIGNIN_NOTIFICATION,
@@ -163,7 +165,7 @@ export async function updateJobStatus(
   error?: string
 ): Promise<void> {
   try {
-    await prisma.jobLog.update({
+    await (prisma as any).jobLog.update({
       where: { jobId },
       data: {
         status,
@@ -186,7 +188,7 @@ export async function moveJobToDLQ(
   error: Error
 ): Promise<void> {
   try {
-    await prisma.jobLog.update({
+    await (prisma as any).jobLog.update({
       where: { jobId: job.data.jobId },
       data: {
         status: 'dlq',

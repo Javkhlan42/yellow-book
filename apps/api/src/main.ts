@@ -360,7 +360,7 @@ app.get('/api/jobs/:jobId', async (req, res) => {
   try {
     const { jobId } = req.params;
 
-    const job = await prisma.jobLog.findUnique({
+    const job = await (prisma as any).jobLog.findUnique({
       where: { jobId },
     });
 
@@ -386,7 +386,7 @@ app.get('/api/jobs/:jobId', async (req, res) => {
 // Get DLQ entries (admin only)
 app.get('/api/admin/dlq', async (req, res) => {
   try {
-    const dlqJobs = await prisma.jobLog.findMany({
+    const dlqJobs = await (prisma as any).jobLog.findMany({
       where: { status: 'dlq' },
       orderBy: { createdAt: 'desc' },
       take: 100,
@@ -399,6 +399,58 @@ app.get('/api/admin/dlq', async (req, res) => {
   } catch (error: any) {
     console.error('[API] Error fetching DLQ:', error);
     res.status(500).json({ error: 'Failed to fetch DLQ entries' });
+  }
+});
+
+// Admin: Send custom email (Background Job)
+app.post('/api/admin/send-email', async (req, res) => {
+  try {
+    const { to, subject, body } = req.body;
+
+    // Validation
+    if (!to || !subject || !body) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: to, subject, body' 
+      });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    // Generate unique job ID
+    const jobId = `custom-email-${Date.now()}-${randomUUID()}`;
+    const timestamp = new Date().toISOString();
+
+    // Enqueue custom email job (using same queue service)
+    const job = await enqueueSignInNotification({
+      jobId,
+      userId: 'admin',
+      email: to,
+      name: to.split('@')[0],
+      provider: 'custom',
+      ipAddress: '0.0.0.0',
+      userAgent: 'Admin Email Composer',
+      timestamp,
+      customSubject: subject,
+      customBody: body,
+    });
+
+    console.log(`[API] Custom email job enqueued: ${jobId}`);
+
+    res.status(202).json({
+      message: 'Email job enqueued successfully',
+      jobId: job.id,
+      status: 'enqueued',
+    });
+  } catch (error: any) {
+    console.error('[API] Error enqueueing custom email:', error);
+    res.status(500).json({ 
+      error: 'Failed to enqueue email job',
+      details: error.message 
+    });
   }
 });
 

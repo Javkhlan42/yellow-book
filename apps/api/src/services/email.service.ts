@@ -37,6 +37,46 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
 }
 
 /**
+ * Generate custom email content
+ */
+export function generateCustomEmail(data: {
+  to: string;
+  subject: string;
+  body: string;
+}): EmailPayload {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; white-space: pre-wrap; }
+    .footer { text-align: center; color: #888; margin-top: 30px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📧 ${data.subject}</h1>
+    </div>
+    <div class="content">
+      ${data.body}
+    </div>
+    <div class="footer">
+      <p>Баярлалаа,<br><strong>Yellow Books баг</strong></p>
+      <p>© 2025 Yellow Books. Бүх эрх хуулиар хамгаалагдсан.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  return { to: data.to, subject: data.subject, body: data.body, html };
+}
+
+/**
  * Generate sign-in notification email content
  */
 export function generateSignInEmail(data: {
@@ -160,4 +200,5 @@ function maskEmail(email: string): string {
 export default {
   sendEmail,
   generateSignInEmail,
+  generateCustomEmail,
 };
