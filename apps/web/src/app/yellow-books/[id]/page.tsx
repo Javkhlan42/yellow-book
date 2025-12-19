@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Phone, Mail, MapPin, Globe, Clock, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
@@ -9,19 +8,11 @@ import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Badge } from '../../ui/badge';
 import { Separator } from '../../ui/separator';
+import ClientMap from '../../ui/ClientMap';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
-
-const Map = dynamic(() => import('../../ui/Map'), {
-  loading: () => (
-    <div className="w-full h-[400px] bg-gray-100 rounded-lg flex items-center justify-center">
-      <div className="text-gray-500">Газрын зураг уншиж байна...</div>
-    </div>
-  ),
-  ssr: false,
-});
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   try {
@@ -181,7 +172,7 @@ export default async function OrganizationPage({ params }: { params: { id: strin
               </CardHeader>
               <CardContent>
                 <div className="mb-4">
-                  <Map
+                  <ClientMap
                     latitude={organization.coordinates?.lat}
                     longitude={organization.coordinates?.lng}
                     address={organization.address}
