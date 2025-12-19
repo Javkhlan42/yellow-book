@@ -11,6 +11,8 @@ import { requireAdmin, csrfProtection, AuthRequest } from './middleware/auth';
 import { cosineSimilarity, hashString } from './utils/similarity';
 import { generateQueryEmbedding, generateAIResponse } from './services/ai.service';
 import { getCachedResponse, cacheResponse } from './services/cache.service';
+import { enqueueSignInNotification } from './services/queue.service';
+import { randomUUID } from 'crypto';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -297,7 +299,108 @@ app.post('/api/ai/yellow-books/search', async (req, res) => {
   }
 });
 
-// ..
+// Background Jobs API
+app.post('/api/jobs/signin-notification', async (req, res) => {
+  try {
+    const { userId, email, name, provider, ipAddress, userAgent } = req.body;
+
+    // Validation
+    if (!userId || !email || !name) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: userId, email, name' 
+      });
+    }
+
+    // Generate unique job ID
+    const jobId = `signin-${userId}-${Date.now()}-${randomUUID()}`;
+    const timestamp = new Date().toISOString();
+
+    // Enqueue job
+    const job = await enqueueSignInNotification({
+      jobId,
+      userId,
+      email,
+      name,
+      provider: provider || 'unknown',
+      ipAddress: ipAddress || '0.0.0.0',
+      userAgent: userAgent || 'Unknown',
+      timestamp,
+    });
+
+    console.log(`[API] Sign-in notification job enqueued: ${jobId}`);
+
+    res.status(202).json({
+      message: 'Sign-in notification job enqueued',
+      jobId: job.id,
+      status: 'enqueued',
+    });
+  } catch (error: any) {
+    console.error('[API] Error enqueueing sign-in notification:', error);
+    
+    // Handle specific errors
+    if (error.message === 'Job already processed') {
+      return res.status(409).json({ error: 'Job already processed' });
+    }
+    
+    if (error.message === 'Rate limit exceeded') {
+      return res.status(429).json({ 
+        error: 'Too many sign-in notifications. Please try again later.' 
+      });
+    }
+
+    res.status(500).json({ 
+      error: 'Failed to enqueue job',
+      details: error.message 
+    });
+  }
+});
+
+// Get job status
+app.get('/api/jobs/:jobId', async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await prisma.jobLog.findUnique({
+      where: { jobId },
+    });
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    res.json({
+      jobId: job.jobId,
+      type: job.jobType,
+      status: job.status,
+      createdAt: job.createdAt,
+      processedAt: job.processedAt,
+      attemptCount: job.attemptCount,
+      error: job.error,
+    });
+  } catch (error: any) {
+    console.error('[API] Error fetching job status:', error);
+    res.status(500).json({ error: 'Failed to fetch job status' });
+  }
+});
+
+// Get DLQ entries (admin only)
+app.get('/api/admin/dlq', async (req, res) => {
+  try {
+    const dlqJobs = await prisma.jobLog.findMany({
+      where: { status: 'dlq' },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+
+    res.json({
+      count: dlqJobs.length,
+      jobs: dlqJobs,
+    });
+  } catch (error: any) {
+    console.error('[API] Error fetching DLQ:', error);
+    res.status(500).json({ error: 'Failed to fetch DLQ entries' });
+  }
+});
 
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {

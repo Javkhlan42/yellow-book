@@ -78,3 +78,23 @@ model VerificationToken {
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
+
+// Background Job Log
+model JobLog {
+  id           String   @id @default(uuid())
+  jobId        String   @unique @map("job_id")
+  jobType      String   @map("job_type")
+  userId       String   @map("user_id")
+  status       String   @default("enqueued") // enqueued, processing, completed, failed, dlq
+  payload      Json     @db.JsonB
+  error        String?  @db.Text
+  stackTrace   String?  @map("stack_trace") @db.Text
+  attemptCount Int      @default(0) @map("attempt_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  processedAt  DateTime? @map("processed_at")
+
+  @@index([jobId])
+  @@index([userId, jobType, createdAt])
+  @@index([status])
+  @@map("job_logs")
+}
