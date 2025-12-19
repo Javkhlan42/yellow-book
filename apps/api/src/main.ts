@@ -167,7 +167,8 @@ app.post('/api/ai/yellow-books/search', async (req, res) => {
     const { question, city, category, limit = 5 } = req.body;
     
     if (!question || typeof question !== 'string') {
-      return res.status(400).json({ error: 'Question is required' });
+      res.status(400).json({ error: 'Question is required' });
+      return;
     }
     
     console.log('🤖 AI Search Request:', { question, city, category });
@@ -178,7 +179,8 @@ app.post('/api/ai/yellow-books/search', async (req, res) => {
     
     if (cached) {
       console.log('✅ Cache HIT');
-      return res.json({ ...cached, fromCache: true });
+      res.json({ ...cached, fromCache: true });
+      return;
     }
     
     console.log('❌ Cache MISS - processing...');
@@ -222,7 +224,8 @@ app.post('/api/ai/yellow-books/search', async (req, res) => {
         metadata: { totalFound: 0, filtered: { city, category } }
       };
       await cacheResponse(cacheKey, noResultResponse);
-      return res.json(noResultResponse);
+      res.json(noResultResponse);
+      return;
     }
     
     // 4. Calculate cosine similarity for each business
@@ -258,7 +261,8 @@ app.post('/api/ai/yellow-books/search', async (req, res) => {
         metadata: { totalFound: 0, filtered: { city, category } }
       };
       await cacheResponse(cacheKey, noResultResponse);
-      return res.json(noResultResponse);
+      res.json(noResultResponse);
+      return;
     }
     
     // 6. Generate AI response using RAG
@@ -289,13 +293,15 @@ app.post('/api/ai/yellow-books/search', async (req, res) => {
     
     console.log('✅ AI Search completed');
     res.json({ ...response, fromCache: false });
+    return;
     
   } catch (error: any) {
     console.error('Error in AI search:', error);
-    return res.status(500).json({ 
+    res.status(500).json({ 
       error: 'Failed to process AI search',
       details: error?.message || 'Unknown error'
     });
+    return;
   }
 });
 
@@ -306,9 +312,10 @@ app.post('/api/jobs/signin-notification', async (req, res) => {
 
     // Validation
     if (!userId || !email || !name) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Missing required fields: userId, email, name' 
       });
+      return;
     }
 
     // Generate unique job ID
@@ -339,19 +346,22 @@ app.post('/api/jobs/signin-notification', async (req, res) => {
     
     // Handle specific errors
     if (error.message === 'Job already processed') {
-      return res.status(409).json({ error: 'Job already processed' });
+      res.status(409).json({ error: 'Job already processed' });
+      return;
     }
     
     if (error.message === 'Rate limit exceeded') {
-      return res.status(429).json({ 
+      res.status(429).json({ 
         error: 'Too many sign-in notifications. Please try again later.' 
       });
+      return;
     }
 
     res.status(500).json({ 
       error: 'Failed to enqueue job',
       details: error.message 
     });
+    return;
   }
 });
 
@@ -365,7 +375,8 @@ app.get('/api/jobs/:jobId', async (req, res) => {
     });
 
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
+      res.status(404).json({ error: 'Job not found' });
+      return;
     }
 
     res.json({
@@ -380,6 +391,7 @@ app.get('/api/jobs/:jobId', async (req, res) => {
   } catch (error: any) {
     console.error('[API] Error fetching job status:', error);
     res.status(500).json({ error: 'Failed to fetch job status' });
+    return;
   }
 });
 
@@ -399,6 +411,7 @@ app.get('/api/admin/dlq', async (req, res) => {
   } catch (error: any) {
     console.error('[API] Error fetching DLQ:', error);
     res.status(500).json({ error: 'Failed to fetch DLQ entries' });
+    return;
   }
 });
 
@@ -409,15 +422,17 @@ app.post('/api/admin/send-email', async (req, res) => {
 
     // Validation
     if (!to || !subject || !body) {
-      return res.status(400).json({ 
+      res.status(400).json({ 
         error: 'Missing required fields: to, subject, body' 
       });
+      return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(to)) {
-      return res.status(400).json({ error: 'Invalid email address' });
+      res.status(400).json({ error: 'Invalid email address' });
+      return;
     }
 
     // Generate unique job ID
@@ -445,12 +460,14 @@ app.post('/api/admin/send-email', async (req, res) => {
       jobId: job.id,
       status: 'enqueued',
     });
+    return;
   } catch (error: any) {
     console.error('[API] Error enqueueing custom email:', error);
     res.status(500).json({ 
       error: 'Failed to enqueue email job',
       details: error.message 
     });
+    return;
   }
 });
 
