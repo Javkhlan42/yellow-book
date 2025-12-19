@@ -69,7 +69,11 @@ export default function AssistantPage() {
       });
 
       if (!res.ok) {
-        throw new Error('Хайлт амжилтгүй боллоо');
+        const errorData = await res.json().catch(() => ({}));
+        if (res.status === 500 && errorData.details?.includes('quota')) {
+          throw new Error('AI хайлтын үйлчилгээ түр хүрэлцээгүй байна. Дараа дахин оролдоно уу.');
+        }
+        throw new Error(errorData.error || 'Хайлт амжилтгүй боллоо');
       }
 
       const data: AISearchResponse = await res.json();
