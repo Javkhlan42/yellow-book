@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import dynamicImport from 'next/dynamic';
+import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Phone, Mail, MapPin, Globe, Clock, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
@@ -14,12 +14,13 @@ import { Separator } from '../../ui/separator';
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-const Map = dynamicImport(() => import('../../ui/Map'), {
+const Map = dynamic(() => import('../../ui/Map'), {
   loading: () => (
     <div className="w-full h-[400px] bg-gray-100 rounded-lg flex items-center justify-center">
       <div className="text-gray-500">Газрын зураг уншиж байна...</div>
     </div>
   ),
+  ssr: false,
 });
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
