@@ -17,6 +17,17 @@ A modern Yellow Pages-style directory web application built with Nx monorepo, fe
 
 **Quick Start**: See [QUICKSTART_AI.md](./QUICKSTART_AI.md) | **Full Docs**: [AI_ASSISTANT_README.md](./AI_ASSISTANT_README.md)
 
+## 📧 NEW: Background Job System (Lab 10)
+- **Email Notifications**: Automatically sends email when users sign in
+- **Async Processing**: Non-blocking job enqueueing with Bull queue
+- **Retry Logic**: Exponential backoff with 5 retry attempts
+- **Idempotency**: Duplicate job detection and prevention
+- **Rate Limiting**: Max 10 emails per user per hour
+- **Dead Letter Queue**: Failed job recovery and monitoring
+- **Full Mongolian Support**: Email templates in Mongolian language
+
+**Quick Start**: See [BACKGROUND_JOB_GUIDE.md](./BACKGROUND_JOB_GUIDE.md) | **Design**: [docs/BACKGROUND_JOB_DESIGN.md](./docs/BACKGROUND_JOB_DESIGN.md) | **Reference**: [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
+
 ## 🏗️ Architecture
 
 ``` d 
@@ -59,6 +70,25 @@ npm run dev
 # Or start individually
 npx nx serve api    # http://localhost:3333
 npx nx serve web    # http://localhost:3000
+
+# Start background job worker (for sign-in email notifications)
+npm run worker:dev  # With auto-reload
+# or
+npm run worker      # Production mode
+```
+
+### Background Job System Setup
+
+To enable email notifications on user sign-in:
+
+```bash
+# 1. Start Redis (if not running)
+redis-server
+
+# 2. Start worker in separate terminal
+npm run worker
+
+# 3. When user signs in → Email job enqueued → Worker processes it
 ```
 
 ## 🐳 Docker
