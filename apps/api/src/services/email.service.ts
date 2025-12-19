@@ -1,9 +1,10 @@
 /**
- * Email Service - Email Sending with Logging
+ * Email Service - Real SMTP Email Sending with Nodemailer
  * 
- * Currently implements log-only email sending for demonstration
- * Can be extended with real SMTP or SendGrid integration
+ * Sends real emails via SMTP (Gmail, SendGrid, etc.)
  */
+
+import nodemailer from 'nodemailer';
 
 export interface EmailPayload {
   to: string;
@@ -12,27 +13,66 @@ export interface EmailPayload {
   html?: string;
 }
 
+// Create SMTP transporter
+const createTransporter = () => {
+  const smtpEnabled = process.env.SMTP_ENABLED === 'true';
+  
+  if (!smtpEnabled) {
+    console.log('⚠️  SMTP disabled - using log-only mode');
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for 587
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
+  });
+};
+
 /**
- * Send email (currently log-only implementation)
+ * Send email via SMTP or log-only mode
  */
 export async function sendEmail(payload: EmailPayload): Promise<void> {
-  console.log('\n=================================');
-  console.log('📧 EMAIL SENT (LOG-ONLY MODE)');
-  console.log('=================================');
-  console.log(`To: ${maskEmail(payload.to)}`);
-  console.log(`Subject: ${payload.subject}`);
-  console.log(`Body:\n${payload.body}`);
-  if (payload.html) {
-    console.log(`HTML: ${payload.html.substring(0, 100)}...`);
+  const transporter = createTransporter();
+
+  // Log-only mode
+  if (!transporter) {
+    console.log('\n=================================');
+    console.log('📧 EMAIL SENT (LOG-ONLY MODE)');
+    console.log('=================================');
+    console.log(`To: ${maskEmail(payload.to)}`);
+    console.log(`Subject: ${payload.subject}`);
+    console.log(`Body:\n${payload.body}`);
+    if (payload.html) {
+      console.log(`HTML: ${payload.html.substring(0, 100)}...`);
+    }
+    console.log('=================================\n');
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return;
   }
-  console.log('=================================\n');
 
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  // Real SMTP mode
+  try {
+    console.log(`\n📧 Sending email to ${maskEmail(payload.to)}...`);
+    
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: payload.to,
+      subject: payload.subject,
+      text: payload.body,
+      html: payload.html || payload.body,
+    });
 
-  // Simulate random failures for testing retry logic (10% failure rate)
-  if (Math.random() < 0.1) {
-    throw new Error('Simulated email service failure');
+    console.log('✅ Email sent successfully!');
+    console.log(`Message ID: ${info.messageId}`);
+    console.log(`Response: ${info.response}`);
+  } catch (error: any) {
+    console.error('❌ Failed to send email:', error.message);
+    throw new Error(`Email sending failed: ${error.message}`);
   }
 }
 

@@ -220,16 +220,17 @@ Yellow Books баг`);
           </form>
 
           {/* Info Box */}
-          <div className="bg-blue-50 border-t border-blue-100 px-8 py-6">
+          <div className="bg-green-50 border-t border-green-100 px-8 py-6">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">💡</span>
+              <span className="text-2xl">✅</span>
               <div className="flex-1">
-                <h3 className="font-semibold text-blue-900 mb-1">Санамж</h3>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Имэйл background job-оор асинхрон илгээгдэнэ</li>
-                  <li>• Одоогоор log-only горимд ажиллаж байна (бодит имэйл илгээхгүй)</li>
-                  <li>• Worker logs-г шалгаж имэйл агуулгыг харна уу</li>
+                <h3 className="font-semibold text-green-900 mb-1">Имэйл илгээх систем идэвхтэй</h3>
+                <ul className="text-sm text-green-800 space-y-1">
+                  <li>• <strong>Бодит имэйл</strong> илгээгдэнэ (Gmail SMTP)</li>
+                  <li>• Background job queue ашиглан асинхрон илгээгдэнэ</li>
                   <li>• Алдаа гарвал автоматаар 5 удаа retry хийнэ</li>
+                  <li>• 2-5 секундын дотор хүлээн авагдана</li>
+                  <li>• Spam folder-ийг шалгаарай</li>
                 </ul>
               </div>
             </div>
